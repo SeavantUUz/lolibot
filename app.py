@@ -1,20 +1,27 @@
 # coding:utf-8
 from flask import Flask,request
+import logging
 import hashlib
 import xml.etree.ElementTree as ET
 
+logging.basicConfig(filename='lolibot.log',level=logging.DEBUG)
+
 app = Flask(__name__)
 
+logging.debug('----------DEBUG BEGINING!----------')
 @app.route('/',methods=['GET','POST'])
 def get():
     if request.method == 'GET':
-        return verity(request.args)
+        if request.args:
+            return verity(request.args)
+        else:
+            return 'hello sanae'
     else:
         msg = parser(request.data)
         return echo(msg)
 
 def verity(kwargs):
-        token     = 'AprocySanae'
+        token     = 'WhiteSilkSanae'
         signature = kwargs.get('signature')
         timestamp = kwargs.get('timestamp')
         nonce     = kwargs.get('nonce')
@@ -23,9 +30,19 @@ def verity(kwargs):
         liststr.sort()
         sha1      = hashlib.sha1()
         hashcode  = sha1.update(''.join(liststr))
+        logging.info("
+            token:{0}\n
+            signature:{1}\n
+            timestamp:{2}\n
+            nonce:{3}\n
+            echostr:{4}\n
+            hashcode:{5}
+           ".format(token,signature,timestamp,nonce,echostr,hashcode)) 
+        logging.debug('----------DEBUG ENDING----------')
         if signature == hashcode.hexdigest():
-            return echostr
-        return False
+            return True
+        else:
+            return False
 
 def echo(dictionary):
     TEMPLATE = to_unicode('''
@@ -54,6 +71,3 @@ def to_unicode(data):
     elif isinstance(data,int):
         return unicode(data)
     else:return data.decode('utf-8')
-        
-if __name__ == "__main__":
-    app.run()
