@@ -9,40 +9,39 @@ logging.basicConfig(filename='lolibot.log',level=logging.DEBUG)
 app = Flask(__name__)
 
 logging.debug('----------DEBUG BEGINING!----------')
+
 @app.route('/',methods=['GET','POST'])
 def get():
     if request.method == 'GET':
-        if request.args:
-            return verity(request.args)
+        if verity(request.args):
+            return request.args.get('echostr')
         else:
-            return 'hello sanae'
+            return 'signature error',400
     else:
         msg = parser(request.data)
         return echo(msg)
 
 def verity(kwargs):
-        token     = 'WhiteSilkSanae'
-        signature = kwargs.get('signature')
-        timestamp = kwargs.get('timestamp')
-        nonce     = kwargs.get('nonce')
-        echostr   = kwargs.get('echostr')
-        liststr   = [token,timestamp,nonce]
-        liststr.sort()
-        sha1      = hashlib.sha1()
-        hashcode  = sha1.update(''.join(liststr))
-        logging.info("
-            token:{0}\n
-            signature:{1}\n
-            timestamp:{2}\n
-            nonce:{3}\n
-            echostr:{4}\n
-            hashcode:{5}
-           ".format(token,signature,timestamp,nonce,echostr,hashcode)) 
-        logging.debug('----------DEBUG ENDING----------')
-        if signature == hashcode.hexdigest():
-            return True
-        else:
-            return False
+    token     = 'yourToken'
+    signature = kwargs.get('signature')
+    timestamp = kwargs.get('timestamp')
+    nonce     = kwargs.get('nonce')
+    echostr   = kwargs.get('echostr')
+    liststr   = [token,timestamp,nonce]
+    liststr.sort()
+    sha1      = hashlib.sha1()
+    sha1.update((''.join(liststr)).encode('utf-8'))
+    hashcode  = sha1.hexdigest()
+    logging.info('''
+        token:{0}\n
+        signature:{1}\n
+        timestamp:{2}\n
+        nonce:{3}\n
+        echostr:{4}\n
+        hashcode:{5}
+       '''.format(token,signature,timestamp,nonce,echostr,hashcode)) 
+    logging.debug('----------DEBUG ENDING----------')
+    return signature == hashcode
 
 def echo(dictionary):
     TEMPLATE = to_unicode('''
@@ -58,7 +57,8 @@ def echo(dictionary):
     return TEMPLATE.format(**dictionary)
 
 def parser(data):
-    root = ET.formstring(data)
+    logging.info(data)
+    root = ET.fromstring(data)
     msg = dict(
         [(child.tag,to_unicode(child.text)) for child in root]
         )
