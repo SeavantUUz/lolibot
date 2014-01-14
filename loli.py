@@ -1,29 +1,29 @@
 # coding:utf-8
 import logging
 import xml.etree.ElementTree as ET
+import hashlib
+
 class Robot(object):
     mtypes = ['text','image','voice','video','location','link','all']
 
-    def __init__(self):
+    def __init__(self,token='yourToken'):
         self.logging.basicConfig(filename='lolibot.log',level=logging.DEBUG)
-        self.callbacks = dict([(i,None) for i in self.mtypes])
+        self._callbacks = dict([(i,None) for i in self.mtypes])
+        self.token = token
 
     def add_callback(self,mtype='all'):
-        try:
-            assert mtype in self.mtypes
-        except AssertionError:
-            raise Exception("Your type won't be accepted")
+        assert mtype in self.mtypes
         def decorator(f):
-            self.callbacks[mtype] = f
+            self._callbacks[mtype] = f
         return decorator
 
-    def callback(self,mtype):
-        return self.callbacks[mtype]
+    def get_callback(self,mtype):
+        return self._callbacks[mtype]
 
     def parser(self,data):
         root = ET.fromstring(data)
         dic = dict(
-                [(child.tag,self.to_unicode(child.text)) for child in root]
+                [(child.tag,self.child.text) for child in root]
                 )
         dic['msgid'] = parser_data.get('MsgId')
         dic['receiver'] = parser_data.get('ToUserName')
@@ -48,9 +48,21 @@ class Robot(object):
             dic['label'] = parser_data.get('Label')
         if type == 'link':
             dic['title'] = parser_data.get('Title')
-            dic['description'] = parser_data.get('Description']
+            dic['description'] = parser_data.get('Description')
             dic['url'] = parser_data.get('Url')
         return dic
-        
 
+    def verify(self,kwargs):
+        token = self.token
+        signature = kwargs.get('signature')
+        timestamp = kwargs.get('timestamp')
+        nonce = kwargs.get('nonce')
+        echostr = kwargs.get('echostr')
+        liststr = sorted([token,timestamp,nonce])
+        sha1 = hashlib.sha1()
+        sha1.update((''.join(liststr)).encode('utf-8'))
+        hashcode = sha1.hexdigest()
+        return signature == hashcode
 
+    
+    

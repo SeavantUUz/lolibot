@@ -21,27 +21,6 @@ def get():
         msg = parser(request.data)
         return echo(msg)
 
-def verity(kwargs):
-    token     = 'yourToken'
-    signature = kwargs.get('signature')
-    timestamp = kwargs.get('timestamp')
-    nonce     = kwargs.get('nonce')
-    echostr   = kwargs.get('echostr')
-    liststr   = [token,timestamp,nonce]
-    liststr.sort()
-    sha1      = hashlib.sha1()
-    sha1.update((''.join(liststr)).encode('utf-8'))
-    hashcode  = sha1.hexdigest()
-    logging.info('''
-        token:{0}\n
-        signature:{1}\n
-        timestamp:{2}\n
-        nonce:{3}\n
-        echostr:{4}\n
-        hashcode:{5}
-       '''.format(token,signature,timestamp,nonce,echostr,hashcode)) 
-    logging.debug('----------DEBUG ENDING----------')
-    return signature == hashcode
 
 def echo(dictionary):
     TEMPLATE = to_unicode('''
@@ -56,13 +35,6 @@ def echo(dictionary):
     ''')
     return TEMPLATE.format(**dictionary)
 
-def parser(data):
-    logging.info(data)
-    root = ET.fromstring(data)
-    msg = dict(
-        [(child.tag,to_unicode(child.text)) for child in root]
-        )
-    return msg
 
 
 def to_unicode(data):
