@@ -3,6 +3,7 @@ from flask import Flask
 import logging
 import xml.etree.ElementTree as ET
 import hashlib
+from template import Template
 
 class Loli(object):
     mtypes = ['text','image','voice','video','location','link','all']

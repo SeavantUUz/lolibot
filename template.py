@@ -4,13 +4,13 @@ class Template(object):
         u'''所有模板共有的公共部分'''
         return '''
 <xml>
-    <ToUserName><![CDATA[toUser]]></ToUserName>
-    <FromUserName><![CDATA[fromUser]]></FromUserName>
-    <CreateTime>12345678</CreateTime>
-    <MsgType><![CDATA[text]]></MsgType>\n
-'''               \
- + sub_template + \
-'\n</xml>'
+    <ToUserName><![CDATA[{receiver}]]></ToUserName>
+    <FromUserName><![CDATA[{sender}]]></FromUserName>
+    <CreateTime>{timestamp}</CreateTime>
+    <MsgType><![CDATA[{type}]]></MsgType>
+''' \     
+  + sub_template + \
+'</xml>'
 
     @property
     def text(self):
