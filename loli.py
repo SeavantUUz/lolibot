@@ -1,9 +1,10 @@
 # coding:utf-8
+from flask import Flask
 import logging
 import xml.etree.ElementTree as ET
 import hashlib
 
-class Robot(object):
+class Loli(object):
     mtypes = ['text','image','voice','video','location','link','all']
 
     def __init__(self,token='yourToken'):
@@ -17,14 +18,22 @@ class Robot(object):
             self._callbacks[mtype] = f
         return decorator
 
-    def get_callback(self,mtype):
-        return self._callbacks[mtype]
+    def callback(self,mtype):
+        return self._callbacks.get(mtype)
+
+    def response(self,msg,**kwargs):
+        type = msg['type']
+        msg['receiver'],msg['sender'] = msg['sender'],msg['receiver']
+        template = template
+        
+
 
     def parser(self,data):
         root = ET.fromstring(data)
-        dic = dict(
+        parser_data = dict(
                 [(child.tag,self.child.text) for child in root]
                 )
+        dic = {}
         dic['msgid'] = parser_data.get('MsgId')
         dic['receiver'] = parser_data.get('ToUserName')
         dic['sender'] = parser_data.get('FromUserName')
@@ -41,6 +50,8 @@ class Robot(object):
         if type == 'video':
             dic['media_id'] = parser_data.get('MediaId')
             dic['th_media_id'] = parser_data.get('ThumbMediaId')
+            dic['title'] = 'default title'
+            dic['description'] = 'no description'
         if type == 'location':
             dic['x'] = parser_data.get('Location_X')
             dic['y'] = parser_data.get('Location_Y')
@@ -64,5 +75,28 @@ class Robot(object):
         hashcode = sha1.hexdigest()
         return signature == hashcode
 
-    
-    
+class Shoujo(Loli):
+    @property
+    def wsgi(self):
+        app = Flask(__name__)
+
+        @app.route('/',methods=['GET','POST'])
+        def handle():
+            if request.method == "GET":
+                if self.verify(request.args):
+                    return request.args.get('echstr')
+                else:
+                    return 'signature error',400
+            else:
+                msg = self.parser(request.data)
+                assert msg['type']
+                func = self.callback(msg['type'])
+                if func:
+                    return func(msg)
+                else:
+                    raise Exception("Undefined type")
+        return app
+
+    def run(self,host='127.0.0.1',port=5000):
+        self.wsgi.run(host,port)
+

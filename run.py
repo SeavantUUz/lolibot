@@ -4,12 +4,11 @@ robot = Robot('WhiteSilkSanae')
 
 @robot.add_callback('text')
 def hello(message):
-    return robot.response(message,'hello world')
+    return robot.response(message)
 
 @robot.add_callback('video')
 def handle(message):
-    dic = robot.parser(message)
-    dic['url'] = 'blog.kochiya.me'
-    return robot.reponse(dic)
+    message['url'] = 'blog.kochiya.me'
+    return robot.reponse(message,content='hello world',handler=foo)
 
 robot.run()
