@@ -8,8 +8,7 @@ class Template(object):
     <FromUserName><![CDATA[{sender}]]></FromUserName>
     <CreateTime>{timestamp}</CreateTime>
     <MsgType><![CDATA[{type}]]></MsgType>
-''' \     
-  + sub_template + \
+''' + sub_template + \
 '</xml>'
 
     @property

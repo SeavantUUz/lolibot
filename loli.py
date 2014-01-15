@@ -5,11 +5,13 @@ import xml.etree.ElementTree as ET
 import hashlib
 from template import Template
 
+__all__ = ['Loli','Shoujo']
+
 class Loli(object):
     mtypes = ['text','image','voice','video','location','link','all']
+    logging.basicConfig(filename='lolibot.log',level=logging.DEBUG)
 
-    def __init__(self,token='yourToken'):
-        self.logging.basicConfig(filename='lolibot.log',level=logging.DEBUG)
+    def __init__(self,token='yourToken',logging=True):
         self._callbacks = dict([(i,None) for i in self.mtypes])
         self.token = token
 
@@ -23,12 +25,38 @@ class Loli(object):
         return self._callbacks.get(mtype)
 
     def response(self,msg,**kwargs):
-        type = msg['type']
+        ## msg is parsed and your handled data.Actually,it is a dict.
+        ## Your could specify a type by assign.ex response(type='music').I list all legal types.
+        '''
+        your could pass some key words to control some specially behaviors.
+        ex: response(message,type='yourType')
+        optional kwargs:
+        type='yourType',content='yourContent',handler=foo 
+        '''
         msg['receiver'],msg['sender'] = msg['sender'],msg['receiver']
-        template = template
+        legal_types = ['text','image','voice','video','music']
+
+        ## get some kwargs ##
+        # key word content ---- which force type to textand return a static string
+        self.logging.info(kwargs)
+        if kwargs.get('type'):
+            type = kwargs.get('type')
+        else:type = msg['type']
+        # charge receiver and sender
+        if not type in legal_types:
+            raise Exception("Illgal type!You could only choose one type from 'text','image','voice','video' and 'music'!") 
+        if kwargs.get('content'):
+            msg['type'] = type = 'text'
+            msg['content'] = kwargs.get('content')
+        # key word handler ---- which is a function object,accept a dict and return a modified dict
+        if kwargs.get('handler'):
+            msg = kwargs.get('handler')(msg)
+        ## more kwargs ##
+
+        template = getattr(Template(),type)
+        self.logging.info(template)
+        return template.format(**msg)
         
-
-
     def parser(self,data):
         root = ET.fromstring(data)
         parser_data = dict(
@@ -62,6 +90,7 @@ class Loli(object):
             dic['title'] = parser_data.get('Title')
             dic['description'] = parser_data.get('Description')
             dic['url'] = parser_data.get('Url')
+        self.logging.info(dic)
         return dic
 
     def verify(self,kwargs):
@@ -83,6 +112,7 @@ class Shoujo(Loli):
 
         @app.route('/',methods=['GET','POST'])
         def handle():
+            '''your should never care the sender and receiver and never care get or post --- unless you know what do you do'''
             if request.method == "GET":
                 if self.verify(request.args):
                     return request.args.get('echstr')
