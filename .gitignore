@@ -38,3 +38,4 @@ env
 *.log
 *.swp
 *.pyc
+*.out
