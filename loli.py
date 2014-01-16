@@ -1,5 +1,5 @@
 # coding:utf-8
-from flask import Flask
+from flask import Flask,request
 import logging
 import xml.etree.ElementTree as ET
 import hashlib
@@ -38,7 +38,7 @@ class Loli(object):
 
         ## get some kwargs ##
         # key word content ---- which force type to textand return a static string
-        self.logging.info(kwargs)
+        logging.info(kwargs)
         if kwargs.get('type'):
             type = kwargs.get('type')
         else:type = msg['type']
@@ -54,13 +54,13 @@ class Loli(object):
         ## more kwargs ##
 
         template = getattr(Template(),type)
-        self.logging.info(template)
+        logging.info(template.format(**msg))
         return template.format(**msg)
         
     def parser(self,data):
         root = ET.fromstring(data)
         parser_data = dict(
-                [(child.tag,self.child.text) for child in root]
+                [(child.tag,child.text) for child in root]
                 )
         dic = {}
         dic['msgid'] = parser_data.get('MsgId')
@@ -90,7 +90,7 @@ class Loli(object):
             dic['title'] = parser_data.get('Title')
             dic['description'] = parser_data.get('Description')
             dic['url'] = parser_data.get('Url')
-        self.logging.info(dic)
+        #self.logging.info(dic)
         return dic
 
     def verify(self,kwargs):
@@ -114,8 +114,8 @@ class Shoujo(Loli):
         def handle():
             '''your should never care the sender and receiver and never care get or post --- unless you know what do you do'''
             if request.method == "GET":
-                if self.verify(request.args):
-                    return request.args.get('echstr')
+                if request.args != {} and self.verify(request.args):
+                    return request.args.get('echostr')
                 else:
                     return 'signature error',400
             else:

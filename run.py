@@ -1,9 +1,10 @@
-from loli import Shoujo
+import loli
 
-robot = Shoujo('WhiteSilkSanae')
+robot = loli.Shoujo('WhiteSilkSanae')
 
 @robot.add_callback('text')
 def hello(message):
+    print '--------------------------------'
     return robot.response(message,content='hello world')
 
 ## @robot.add_callback('video')
