@@ -51,10 +51,19 @@ class Base(unittest.TestCase):
             '''.format(title,description,url)
             message['content'] = content
             return shoujo.response(message,type='text')
+        
+        @shoujo.add_callback('all')
+        def all(message):
+            return shoujo.response(message,type='text',content='all handler')
 
+        @shoujo.add_callback('subscribe')
+        def subscribe(message):
+            return shoujo.response(message,type='text',content=u'订阅成功')
 
         app = shoujo.wsgi
         return app
+
+
 
 class Test(Base):
     def test_invalid_get(self):
@@ -133,12 +142,26 @@ class Test(Base):
         <ToUserName><![CDATA[toUser]]></ToUserName>
         <FromUserName><![CDATA[fromUser]]></FromUserName>
         <CreateTime>1351776360</CreateTime>
-        <MsgType><![CDATA[video]]></MsgType>
+        <MsgType><![CDATA[unsubscribe]]></MsgType>
         <Title><![CDATA[公众平台官网链接]]></Title>
         <Description><![CDATA[公众平台官网链接]]></Description>
         <Url><![CDATA[url]]></Url>
         <MsgId>1234567890123456</MsgId>
         </xml> 
+        '''
+        rv = self.client.post('/',data=text)
+        assert rv.status_code == 200
+
+    def test_subscribe(self):
+        text='''
+        <xml>
+        <ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[FromUser]]></FromUserName>
+        <CreateTime>123456789</CreateTime>
+        <MsgType><![CDATA[event]]></MsgType>
+        <Event><![CDATA[subscribe]]></Event>
+        <EventKey><![CDATA[qrscene_123123]]></EventKey>
+        </xml>
         '''
         rv = self.client.post('/',data=text)
         assert rv.status_code == 200

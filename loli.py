@@ -9,7 +9,7 @@ from utils import to_unicode
 __all__ = ['Loli','Shoujo']
 
 class Loli(object):
-    mtypes = ['text','image','voice','video','location','link','all']
+    mtypes = ['text','image','location','link','scan','subscribe','unsubscribe','CLICK','all']
     logging.basicConfig(filename='lolibot.log',level=logging.DEBUG)
 
     def __init__(self,token='yourToken',logging=True):
@@ -39,7 +39,6 @@ class Loli(object):
 
         ## get some kwargs ##
         # key word content ---- which force type to textand return a static string
-        logging.info(kwargs)
         if kwargs.get('type'):
             type = kwargs.get('type')
         else:type = msg['type']
@@ -76,14 +75,14 @@ class Loli(object):
             # should be sent
             dic['picurl'] = parser_data.get('PicUrl')
             dic['msg_id'] = parser_data.get('MsgId')
-        if type == 'voice':
-            dic['media_id'] = parser_data.get('MediaId')
-            dic['format'] = parser_data.get('Format')
-        if type == 'video':
-            dic['media_id'] = parser_data.get('MediaId')
-            dic['th_media_id'] = parser_data.get('ThumbMediaId')
-            dic['title'] = 'default title'
-            dic['description'] = 'no description'
+        ## if type == 'voice':
+        ##     dic['media_id'] = parser_data.get('MediaId')
+        ##     dic['format'] = parser_data.get('Format')
+        ## if type == 'video':
+        ##     dic['media_id'] = parser_data.get('MediaId')
+        ##     dic['th_media_id'] = parser_data.get('ThumbMediaId')
+        ##     dic['title'] = 'default title'
+        ##     dic['description'] = 'no description'
         if type == 'location':
             dic['x'] = parser_data.get('Location_X')
             dic['y'] = parser_data.get('Location_Y')
@@ -93,7 +92,9 @@ class Loli(object):
             dic['title'] = parser_data.get('Title')
             dic['description'] = parser_data.get('Description')
             dic['url'] = parser_data.get('Url')
-        #self.logging.info(dic)
+        if type == 'event':
+            dic['event_key'] = parser_data.get('EventKey')
+            dic['type'] = parser_data.get('Event')
         return dic
 
     def verify(self,kwargs):
