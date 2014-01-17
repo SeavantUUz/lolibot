@@ -1,3 +1,4 @@
+#coding:utf-8
 from loli import Shoujo
 import unittest
 
@@ -22,6 +23,21 @@ class Base(unittest.TestCase):
             # with msg_id.the next coding block is only a test.
             dic['media_id'] = dic['msg_id']
             return dic
+
+        @shoujo.add_callback('location')
+        def location(message):
+            label = message['label']
+            x = message['x']
+            y = message['y']
+            scale = message['scale']
+            content = u'''
+            位置信息:{0}
+            纬度:{1}
+            经度:{2}
+            缩放比例:{3}
+            '''.format(label,x,y,scale)
+            message['content'] = content
+            return shoujo.response(message,type='text')
 
         app = shoujo.wsgi
         return app
@@ -58,6 +74,23 @@ class Test(Base):
         <CreateTime>1348831860</CreateTime>
         <MsgType><![CDATA[image]]></MsgType>
         <PicUrl><![CDATA[this is a url]]></PicUrl>
+        <MsgId>1234567890123456</MsgId>
+        </xml> 
+        '''
+        rv = self.client.post('/',data=text)
+        assert rv.status_code == 200
+
+    def test_post_location(self):
+        text = '''
+        <xml>
+        <ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[fromUser]]></FromUserName>
+        <CreateTime>1351776360</CreateTime>
+        <MsgType><![CDATA[location]]></MsgType>
+        <Location_X>23.134521</Location_X>
+        <Location_Y>113.358803</Location_Y>
+        <Scale>20</Scale>
+        <Label><![CDATA[位置信息]]></Label>
         <MsgId>1234567890123456</MsgId>
         </xml> 
         '''

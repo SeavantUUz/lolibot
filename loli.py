@@ -4,6 +4,7 @@ import logging
 import xml.etree.ElementTree as ET
 import hashlib
 from template import Template
+from utils import to_unicode
 
 __all__ = ['Loli','Shoujo']
 
@@ -47,20 +48,20 @@ class Loli(object):
             raise Exception("Illgal type!You could only choose one type from 'text','image','voice','video' and 'music'!") 
         if kwargs.get('content'):
             msg['type'] = type = 'text'
-            msg['content'] = kwargs.get('content')
+            msg['content'] = to_unicode(kwargs.get('content'))
         # key word handler ---- which is a function object,accept a dict and return a modified dict
         if kwargs.get('handler'):
             msg = kwargs.get('handler')(msg)
         ## more kwargs ##
 
-        template = getattr(Template(),type)
+        template = to_unicode(getattr(Template(),type))
         logging.info(template.format(**msg))
         return template.format(**msg)
         
     def parser(self,data):
         root = ET.fromstring(data)
         parser_data = dict(
-                [(child.tag,child.text) for child in root]
+                [(child.tag,to_unicode(child.text)) for child in root]
                 )
         dic = {}
         dic['msgid'] = parser_data.get('MsgId')
