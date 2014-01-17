@@ -38,6 +38,19 @@ class Base(unittest.TestCase):
             '''.format(label,x,y,scale)
             message['content'] = content
             return shoujo.response(message,type='text')
+        
+        @shoujo.add_callback('link')
+        def link(message):
+            title = message['title']
+            description = message['description']
+            url = message['url']
+            content = u'''
+            链接标题:{0}
+            链接描述:{1}
+            链接地址:{2}
+            '''.format(title,description,url)
+            message['content'] = content
+            return shoujo.response(message,type='text')
 
         app = shoujo.wsgi
         return app
@@ -93,6 +106,22 @@ class Test(Base):
         <Label><![CDATA[位置信息]]></Label>
         <MsgId>1234567890123456</MsgId>
         </xml> 
+        '''
+        rv = self.client.post('/',data=text)
+        assert rv.status_code == 200
+
+    def test_post_link(self):
+        text = '''
+        <xml>
+        <ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[fromUser]]></FromUserName>
+        <CreateTime>1351776360</CreateTime>
+        <MsgType><![CDATA[link]]></MsgType>
+        <Title><![CDATA[公众平台官网链接]]></Title>
+        <Description><![CDATA[公众平台官网链接]]></Description>
+        <Url><![CDATA[url]]></Url>
+        <MsgId>1234567890123456</MsgId>
+        </xml>  
         '''
         rv = self.client.post('/',data=text)
         assert rv.status_code == 200
