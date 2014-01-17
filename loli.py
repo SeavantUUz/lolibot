@@ -108,6 +108,9 @@ class Loli(object):
         hashcode = sha1.hexdigest()
         return signature == hashcode
 
+    def default(self,message):
+        return self.response(message,type='text',content=u'还没有定义这种类型消息的处理函数呢，如果您是开发者的话，请查看您的处理函数书写正确哦。如果您确定正确，请告知我。感谢您的使用呢。')
+
 class Shoujo(Loli):
     @property
     def wsgi(self):
@@ -128,7 +131,13 @@ class Shoujo(Loli):
                 if func:
                     return func(msg)
                 else:
-                    raise Exception("Undefined type")
+                    if msg['type'] in self.mtypes:
+                        foo = self.callback('all')
+                        if foo:
+                            return foo(msg)
+                        else:return self.default(msg)
+                    else:
+                        raise Exception("Undefined type")
         return app
 
     def run(self,host='127.0.0.1',port=5000):

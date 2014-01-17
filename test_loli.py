@@ -52,6 +52,7 @@ class Base(unittest.TestCase):
             message['content'] = content
             return shoujo.response(message,type='text')
 
+
         app = shoujo.wsgi
         return app
 
@@ -122,6 +123,22 @@ class Test(Base):
         <Url><![CDATA[url]]></Url>
         <MsgId>1234567890123456</MsgId>
         </xml>  
+        '''
+        rv = self.client.post('/',data=text)
+        assert rv.status_code == 200
+
+    def test_post_no_handler(self):
+        text = '''
+        <xml>
+        <ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[fromUser]]></FromUserName>
+        <CreateTime>1351776360</CreateTime>
+        <MsgType><![CDATA[video]]></MsgType>
+        <Title><![CDATA[公众平台官网链接]]></Title>
+        <Description><![CDATA[公众平台官网链接]]></Description>
+        <Url><![CDATA[url]]></Url>
+        <MsgId>1234567890123456</MsgId>
+        </xml> 
         '''
         rv = self.client.post('/',data=text)
         assert rv.status_code == 200
