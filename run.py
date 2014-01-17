@@ -4,12 +4,10 @@ robot = loli.Shoujo('WhiteSilkSanae')
 
 @robot.add_callback('text')
 def hello(message):
-    print '--------------------------------'
     return robot.response(message,content='hello world')
 
-## @robot.add_callback('video')
-## def handle(message):
-##     message['url'] = 'blog.kochiya.me'
-##     return robot.reponse(message,content='hello world',handler=foo)
-## 
+@robot.add_callback('image')
+def image(message):
+    return robot.reponse(message)
+
 robot.run()

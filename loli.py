@@ -71,8 +71,10 @@ class Loli(object):
         if type == 'text':
             dic['content'] = parser_data.get('Content')
         if type == 'image':
+            # the MsgId in there is not MediaId which
+            # should be sent
             dic['picurl'] = parser_data.get('PicUrl')
-            dic['media_id'] = parser_data.get('MediaId')
+            dic['msg_id'] = parser_data.get('MsgId')
         if type == 'voice':
             dic['media_id'] = parser_data.get('MediaId')
             dic['format'] = parser_data.get('Format')

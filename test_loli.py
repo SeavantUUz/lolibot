@@ -14,6 +14,14 @@ class Base(unittest.TestCase):
         @shoujo.add_callback('text')
         def hello(message):
             return shoujo.response(message,content='hello world')
+        @shoujo.add_callback('image')
+        def image(message):
+            return shoujo.response(message,handler=nomodify)
+        def nomodify(dic):
+            # In wechat,media_id normailly is not equal
+            # with msg_id.the next coding block is only a test.
+            dic['media_id'] = dic['msg_id']
+            return dic
 
         app = shoujo.wsgi
         return app
@@ -38,6 +46,20 @@ class Test(Base):
         <Content><![CDATA[this is a test]]></Content>
         <MsgId>1234567890123456</MsgId>
         </xml>
+        '''
+        rv = self.client.post('/',data=text)
+        assert rv.status_code == 200
+
+    def test_post_image(self):
+        text = '''
+        <xml>
+        <ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[fromUser]]></FromUserName>
+        <CreateTime>1348831860</CreateTime>
+        <MsgType><![CDATA[image]]></MsgType>
+        <PicUrl><![CDATA[this is a url]]></PicUrl>
+        <MsgId>1234567890123456</MsgId>
+        </xml> 
         '''
         rv = self.client.post('/',data=text)
         assert rv.status_code == 200
