@@ -1,5 +1,5 @@
 #coding:utf-8
-from loli import Shoujo
+from lolibot.loli import Shoujo
 import unittest
 
 signature_url = '/?signature=ea9ff9a1dc0125bd03fa83234db49e6087f05212&echostr=kotiyasanae&timestamp=1389796635&nonce=1389405641'
@@ -51,7 +51,7 @@ class Base(unittest.TestCase):
             message['content'] = content
             return shoujo.response(message,type='text')
         
-        @shoujo.add_callback('all')
+        @shoujo.add_callback()
         def all(message):
             return shoujo.response(message,type='text',content='all handler')
 
@@ -147,7 +147,7 @@ class Test(Base):
         <ToUserName><![CDATA[toUser]]></ToUserName>
         <FromUserName><![CDATA[fromUser]]></FromUserName>
         <CreateTime>1351776360</CreateTime>
-        <MsgType><![CDATA[unsubscribe]]></MsgType>
+        <MsgType><![CDATA[LOCATION]]></MsgType>
         <Title><![CDATA[公众平台官网链接]]></Title>
         <Description><![CDATA[公众平台官网链接]]></Description>
         <Url><![CDATA[url]]></Url>
