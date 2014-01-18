@@ -61,7 +61,7 @@ class Loli(object):
             count = kwargs.get('count')
             if count:
                 temp = Template() 
-                # some codes 
+                template = temp.news(count)
             else:
                 raise Exception('When type is set to news,the count kwarg is necessary!')
 
