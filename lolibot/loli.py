@@ -45,11 +45,11 @@ class Loli(object):
             type = kwargs.get('type')
         else:type = msg['type']
         # charge receiver and sender
-        if not type in legal_types:
-            raise Exception("Illgal type!You could only choose one type from legal_types!") 
         if kwargs.get('content'):
             msg['type'] = type = 'text'
             msg['content'] = to_unicode(kwargs.get('content'))
+        if not type in legal_types:
+            raise Exception("Illgal type!You could only choose one type from legal_types!") 
         # key word handler ---- which is a function object,accept a dict and return a modified dict
         if kwargs.get('handler'):
             msg = kwargs.get('handler')(msg)

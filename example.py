@@ -1,3 +1,4 @@
+#coding:utf-8
 from lolibot.loli import Shoujo
 shoujo = Shoujo('yourToken')
 
