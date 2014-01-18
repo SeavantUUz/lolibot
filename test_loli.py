@@ -12,16 +12,15 @@ class Base(unittest.TestCase):
 
     def create_app(self):
         shoujo = Shoujo(token='WhiteSilkSanae')
-        @shoujo.add_callback('text')
-        def hello(message):
-            return shoujo.response(message,content='hello world')
+        ## @shoujo.add_callback('text')
+        ## def hello(message):
+        ##     return shoujo.response(message,content='hello world')
         @shoujo.add_callback('image')
         def image(message):
             return shoujo.response(message,handler=nomodify)
         def nomodify(dic):
             # In wechat,media_id normailly is not equal
             # with msg_id.the next coding block is only a test.
-            dic['media_id'] = dic['msg_id']
             return dic
 
         @shoujo.add_callback('location')
@@ -60,10 +59,16 @@ class Base(unittest.TestCase):
         def subscribe(message):
             return shoujo.response(message,type='text',content=u'订阅成功')
 
+        @shoujo.add_callback('text')
+        def news(m):
+            m['title0'] = u'哈罗'
+            m['description0'] = u'测试一下使用'
+            m['picurl0'] = 'http://blog.kochiya.me/avatar.png'
+            m['url0'] = 'http://blog.kochiya.me'
+            return shoujo.response(m,type='news',count=1)
+
         app = shoujo.wsgi
         return app
-
-
 
 class Test(Base):
     def test_invalid_get(self):
@@ -165,6 +170,7 @@ class Test(Base):
         '''
         rv = self.client.post('/',data=text)
         assert rv.status_code == 200
+
 
 if __name__ == '__main__':
     unittest.main()

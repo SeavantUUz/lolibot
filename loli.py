@@ -61,7 +61,7 @@ class Loli(object):
             count = kwargs.get('count')
             if count:
                 temp = Template() 
-                template = temp.news(count)
+                template = to_unicode(temp.news(count))
             else:
                 raise Exception('When type is set to news,the count kwarg is necessary!')
 
@@ -78,7 +78,7 @@ class Loli(object):
                 [(child.tag,to_unicode(child.text)) for child in root]
                 )
         dic = {}
-        dic['msgid'] = parser_data.get('MsgId')
+        dic['msg_id'] = parser_data.get('MsgId')
         dic['receiver'] = parser_data.get('ToUserName')
         dic['sender'] = parser_data.get('FromUserName')
         dic['type'] = type = parser_data.get('MsgType')
@@ -161,7 +161,7 @@ class Shoujo(Loli):
                             return foo(msg)
                         else:return self.handlerAll(msg)
                     else:
-                        else:return self.handlerUnknown(msg)
+                        return self.handlerUnknown(msg)
         return app
 
     def run(self,host='127.0.0.1',port=5000):
