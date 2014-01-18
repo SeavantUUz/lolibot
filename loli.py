@@ -9,7 +9,7 @@ from utils import to_unicode
 __all__ = ['Loli','Shoujo']
 
 class Loli(object):
-    mtypes = ['text','image','location','link','scan','subscribe','unsubscribe','CLICK','all']
+    mtypes = ['text','image','voice','video','location','link','scan','subscribe','unsubscribe','CLICK','LOCATION','all']
     logging.basicConfig(filename='lolibot.log',level=logging.DEBUG)
 
     def __init__(self,token='yourToken',logging=True):
@@ -29,13 +29,15 @@ class Loli(object):
         ## msg is parsed and your handled data.Actually,it is a dict.
         ## Your could specify a type by assign.ex response(type='music').I list all legal types.
         '''
-        your could pass some key words to control some specially behaviors.
         ex: response(message,type='yourType')
         optional kwargs:
-        type='yourType',content='yourContent',handler=foo 
+        type='legal_types',content='yourContent',handler=foo,count=1 
+        ps:when type is news,the count kwarg is nessceary
+        support types:
+        text,image,voice,video,music,news
         '''
         msg['receiver'],msg['sender'] = msg['sender'],msg['receiver']
-        legal_types = ['text','image','voice','video','music']
+        legal_types = ['text','music','image','voice','video','news']
 
         ## get some kwargs ##
         # key word content ---- which force type to textand return a static string
@@ -44,7 +46,7 @@ class Loli(object):
         else:type = msg['type']
         # charge receiver and sender
         if not type in legal_types:
-            raise Exception("Illgal type!You could only choose one type from 'text','image','voice','video' and 'music'!") 
+            raise Exception("Illgal type!You could only choose one type from legal_types!") 
         if kwargs.get('content'):
             msg['type'] = type = 'text'
             msg['content'] = to_unicode(kwargs.get('content'))
@@ -53,9 +55,22 @@ class Loli(object):
             msg = kwargs.get('handler')(msg)
         ## more kwargs ##
 
-        template = to_unicode(getattr(Template(),type))
+        if not type == 'news':
+            template = to_unicode(getattr(Template(),type))
+        else:
+            count = kwargs.get('count')
+            if count:
+                temp = Template() 
+                # some codes 
+            else:
+                raise Exception('When type is set to news,the count kwarg is necessary!')
+
         logging.info(template.format(**msg))
-        return template.format(**msg)
+        try:
+            retdata = template.format(**msg)
+        except:
+            raise Exception("You did't pass enough args or pass wrong args,please check args which template needed.Read template.py maybe inspire your mind")
+        return retdata
         
     def parser(self,data):
         root = ET.fromstring(data)
@@ -74,15 +89,15 @@ class Loli(object):
             # the MsgId in there is not MediaId which
             # should be sent
             dic['picurl'] = parser_data.get('PicUrl')
-            dic['msg_id'] = parser_data.get('MsgId')
-        ## if type == 'voice':
-        ##     dic['media_id'] = parser_data.get('MediaId')
-        ##     dic['format'] = parser_data.get('Format')
-        ## if type == 'video':
-        ##     dic['media_id'] = parser_data.get('MediaId')
-        ##     dic['th_media_id'] = parser_data.get('ThumbMediaId')
-        ##     dic['title'] = 'default title'
-        ##     dic['description'] = 'no description'
+            dic['media_id'] = parser_data.get('MediaId')
+        if type == 'voice':
+            dic['media_id'] = parser_data.get('MediaId')
+            dic['format'] = parser_data.get('Format')
+        if type == 'video':
+            dic['media_id'] = parser_data.get('MediaId')
+            dic['th_media_id'] = parser_data.get('ThumbMediaId')
+            dic['title'] = 'default title'
+            dic['description'] = 'no description'
         if type == 'location':
             dic['x'] = parser_data.get('Location_X')
             dic['y'] = parser_data.get('Location_Y')
@@ -95,6 +110,11 @@ class Loli(object):
         if type == 'event':
             dic['event_key'] = parser_data.get('EventKey')
             dic['type'] = parser_data.get('Event')
+            dic['ticket'] = parser_data.get('Ticket')
+            ## LOCATION type has some extra values
+            dic['latitude'] = parser_data.get('Latitude')
+            dic['longitude'] = parser_data.get('Longitude')
+            dic['precision'] = parser_data.get('Precision')
         return dic
 
     def verify(self,kwargs):
@@ -109,8 +129,11 @@ class Loli(object):
         hashcode = sha1.hexdigest()
         return signature == hashcode
 
-    def default(self,message):
-        return self.response(message,type='text',content=u'还没有定义这种类型消息的处理函数呢，如果您是开发者的话，请查看您的处理函数书写正确哦。如果您确定正确，请告知我。感谢您的使用呢。')
+    def handlerAll(self,message):
+        return self.response(message,type='text',content=u"Sorry,I don't have a specially callback function could handle your meesage's type now. ")
+
+    def handlerUnknown(self,message):
+        return self.response(message,type='text',content=u"Sorry,I could not recognize this message's type.Maybe the API of wechat has updated.Post a issue on github is a recommended way.")
 
 class Shoujo(Loli):
     @property
@@ -136,9 +159,9 @@ class Shoujo(Loli):
                         foo = self.callback('all')
                         if foo:
                             return foo(msg)
-                        else:return self.default(msg)
+                        else:return self.handlerAll(msg)
                     else:
-                        raise Exception("Undefined type")
+                        else:return self.handlerUnknown(msg)
         return app
 
     def run(self,host='127.0.0.1',port=5000):
