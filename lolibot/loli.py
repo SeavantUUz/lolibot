@@ -44,6 +44,9 @@ class Loli(object):
         if kwargs.get('type'):
             type = kwargs.get('type')
         else:type = msg['type']
+        if type == 'music':
+            if not msg['hq_musurl']:
+                msg['hq_musurl'] = msg['musurl']
         # charge receiver and sender
         if kwargs.get('content'):
             msg['type'] = type = 'text'

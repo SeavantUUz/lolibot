@@ -31,4 +31,4 @@ shoujo.run()
 
 文档
 ------
-尚未完成……
+http://blog.kochiya.me/www/posts/Lolibot.html
