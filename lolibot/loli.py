@@ -2,9 +2,12 @@
 from flask import Flask,request
 import logging
 import xml.etree.ElementTree as ET
+from elementtree import SimpleXMLTreeBuilder
 import hashlib
 from template import Template
 from utils import to_unicode
+
+ET.XMLTreeBuilder = SimpleXMLTreeBuilder.TreeBuilder
 
 __all__ = ['Loli','Shoujo']
 
