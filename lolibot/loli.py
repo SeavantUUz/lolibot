@@ -57,6 +57,8 @@ class Loli(object):
         if not type in legal_types:
             raise Exception("Illgal type!You could only choose one type from legal_types!") 
         # key word handler ---- which is a function object,accept a dict and return a modified dict
+        else:
+            msg['type'] = type
         if kwargs.get('handler'):
             msg = kwargs.get('handler')(msg)
         ## more kwargs ##
